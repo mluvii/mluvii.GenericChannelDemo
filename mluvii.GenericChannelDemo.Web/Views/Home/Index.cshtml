@@ -1,0 +1,80 @@
+@model dynamic
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>mluvii generic channel chat demo</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.25/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-rc.2/quill.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-rc.2/quill.core.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-rc.2/quill.snow.min.css" />
+    <style>
+        .received {
+            border-left: 2px solid red;
+            padding-left: 10px;
+        }
+
+        .sent {
+            border-left: 2px solid green;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="messages">
+    </div>
+    <div id="editor"></div>
+    <button id="send">Send it!</button>
+
+    <script>
+        const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+
+        const allMessages = [];
+        connection.on("AddMessages", function (messageModels) {
+            for (const messageModel of messageModels) {
+              allMessages.push(messageModel);
+            }
+            allMessages.sort(function (a, b) {
+                return Math.sign(a.timestamp - b.timestamp);
+            });
+            $("#messages").html(allMessages.map(function (m) {
+                const cls = m.isIncoming ? "received" : "sent";
+                return "<div class=" + cls + ">" + m.content + "</div>";
+            }).join(''));
+        });
+
+        connection.start().catch(function (err) {
+            alert(err.toString());
+        });
+
+        const quill = new Quill('#editor', {
+            modules: {
+                toolbar: [
+                    [{ header: [1, 2, false] }],
+                    ['bold', 'italic', 'underline'],
+                    ['image', 'code-block'],
+                ],
+            },
+            placeholder: 'Write a message ...',
+            theme: 'snow'
+        });
+
+        $("#send").click(function () {
+            const message = quill.getSemanticHTML();
+            console.log("Sending", message);
+            connection.invoke("Send", message);
+            quill.setText('');
+        });
+    </script>
+</body>
+
+</html>
