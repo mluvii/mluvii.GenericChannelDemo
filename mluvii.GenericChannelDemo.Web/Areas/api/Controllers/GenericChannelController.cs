@@ -10,7 +10,9 @@ using mluvii.GenericChannelModels.Registration;
 
 namespace mluvii.GenericChannelDemo.Web.Areas.api.Controllers
 {
+    [ApiExplorerSettings(GroupName = "api")]
     [Area("api")]
+    [Route("/api/[controller]/[action]")]
     [Authorize(AuthenticationSchemes = BasicAuthenticationDefaults.AuthenticationScheme, Roles = "GenericChannel")]
     public class GenericChannelController : Controller
     {
