@@ -36,7 +36,20 @@
     <button id="send">Send it!</button>
 
     <script>
-        const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+        function obtainConversationId() {
+            const lsKey = 'mluvii.GenericChannelDemo.conversationId';
+
+            const existingId = localStorage.getItem(lsKey);
+            if (existingId) {
+                return existingId;
+            }
+
+            const newId = '@Guid.NewGuid().ToString("N")';
+            localStorage.setItem(lsKey, newId);
+            return newId;
+        }
+
+        const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub?conversationId=" + obtainConversationId()).build();
 
         const allMessages = [];
         connection.on("AddMessages", function (messageModels) {
