@@ -16,13 +16,18 @@ namespace mluvii.GenericChannelDemo.Web.Services.Impl
     public class ChatService : IChatService
     {
         private readonly IHttpClientFactory httpClientFactory;
+        private readonly IList<IChatReceivedMessageNotifier> receivedMessageNotifiers;
 
         private readonly ConnectionMultiplexer redis;
         private readonly IDatabase database;
 
-        public ChatService(IHttpClientFactory httpClientFactory, IOptions<RedisOptions> redisOptions)
+        public ChatService(
+            IHttpClientFactory httpClientFactory,
+            IEnumerable<IChatReceivedMessageNotifier> receivedMessageNotifiers,
+            IOptions<RedisOptions> redisOptions)
         {
             this.httpClientFactory = httpClientFactory;
+            this.receivedMessageNotifiers = receivedMessageNotifiers.ToList();
 
             redis = ConnectionMultiplexer.Connect(redisOptions.Value.Url);
             database = redis.GetDatabase(redisOptions.Value.Db);
@@ -45,6 +50,17 @@ namespace mluvii.GenericChannelDemo.Web.Services.Impl
         public async Task<string> ReceiveMessage(string conversationId, MessageModel model)
         {
             await database.ListRightPushAsync(GetKey(conversationId), JsonConvert.SerializeObject(model));
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Run(async () =>
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            {
+                foreach (var notifier in receivedMessageNotifiers)
+                {
+                    await notifier.Notify(conversationId, model);
+                }
+            });
+
             return Guid.NewGuid().ToString("N");
         }
 

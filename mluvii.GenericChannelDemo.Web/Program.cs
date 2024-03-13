@@ -36,6 +36,7 @@ namespace mluvii.GenericChannelDemo.Web
 
             builder.Services.AddHttpClient();
             builder.Services.AddSingleton<IChatService, ChatService>();
+            builder.Services.AddSingleton<IChatReceivedMessageNotifier, ChatHub.ReceivedMessageNotifier>();
 
             builder.Services.Configure<GenericChannelOptions>(builder.Configuration.GetSection("GenericChannel"));
 

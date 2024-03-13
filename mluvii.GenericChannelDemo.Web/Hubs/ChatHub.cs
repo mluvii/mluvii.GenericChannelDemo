@@ -16,6 +16,21 @@ namespace mluvii.GenericChannelDemo.Web.Hubs
             }
         }
 
+        public class ReceivedMessageNotifier : IChatReceivedMessageNotifier
+        {
+            private readonly IHubContext<ChatHub> hubContext;
+
+            public ReceivedMessageNotifier(IHubContext<ChatHub> hubContext)
+            {
+                this.hubContext = hubContext;
+            }
+
+            public Task Notify(string conversationId, MessageModel model)
+            {
+                return hubContext.Clients.User(conversationId).SendAsync("AddMessages", new[] { model });
+            }
+        }
+
         private readonly IChatService chatService;
 
         public ChatHub(IChatService chatService)
