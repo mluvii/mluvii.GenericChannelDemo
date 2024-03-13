@@ -14,7 +14,7 @@
             </DockerPortBindingImpl>
           </list>
         </option>
-        <option name="commandLineOptions" value="--add-host=host.docker.internal:host-gateway" />
+        <option name="commandLineOptions" value="--add-host=host.docker.internal:host-gateway --add-host=local.mluvii.com:host-gateway" />
         <option name="sourceFilePath" value="mluvii.GenericChannelDemo.Web/Dockerfile" />
       </settings>
     </deployment>

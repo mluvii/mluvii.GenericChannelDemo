@@ -1,0 +1,3 @@
+[submodule "mluvii.GenericChannelModels"]
+	path = mluvii.GenericChannelModels
+	url = git@github.com:mluvii/mluvii.GenericChannelModels.git
