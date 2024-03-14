@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Chart.Name }}"
+  labels:
+    app: "{{ .Chart.Name }}"
+spec:
+  selector:
+    matchLabels:
+      app: "{{ .Chart.Name }}"
+  template:
+    metadata:
+      labels:
+        app: "{{ .Chart.Name }}"
+    spec:
+      containers:
+        - name: "{{ .Chart.Name }}"
+          image: ghcr.io/mluvii/mluvii-generic-channel-demo-service:{{ .Chart.AppVersion }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+          - name: TZ
+            value: {{ required "timezone is required" .Values.timezone | quote }}
+          - name: Redis__url
+            value: mluvii-generic-channel-demo-redis
+          - name: GenericChannel__apiUserName
+            value: {{ required "apiUserName is required" .Values.apiUserName | quote }}
+          - name: GenericChannel__apiPassword
+            value: {{ required "apiPassword is required" .Values.apiPassword | quote }}
+      imagePullSecrets:
+        - name: "{{ .Values.imagePullSecret }}"

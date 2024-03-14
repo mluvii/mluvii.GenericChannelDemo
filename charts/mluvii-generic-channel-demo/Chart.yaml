@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mluvii-generic-channel-demo
+description: Demo application for testing mluvii Generic Channel integration
+type: application
+version: 1.0.0
+appVersion: ""

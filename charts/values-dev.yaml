@@ -1,0 +1,12 @@
+---
+
+domain: local.mluvii.com
+
+companyId: "1"
+tenantId: "1"
+
+clientId: "59e082624ea737963e65abd37c58d2cd"
+clientSecret: "941b9d35a9a31813d73245db9b753345"
+
+authUser: "asterisk"
+authPassword: "secret"

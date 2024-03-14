@@ -1,0 +1,5 @@
+timezone: Europe/Prague
+imagePullSecret: ghcrlogin
+
+apiUserName: mluvii
+#apiPassword: ...

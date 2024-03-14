@@ -1,0 +1,43 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  NAME: mluvii-generic-channel-demo
+  IMAGE_NAME: mluvii-generic-channel-demo-service
+  VERSION_MAJOR: 1
+  VERSION_MINOR: 0
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: mluvii
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build docker image
+        run: docker build -f mluvii.GenericChannelDemo.Web/Dockerfile -t ghcr.io/mluvii/${{ env.IMAGE_NAME }}:${{ env.VERSION_MAJOR }}.${{ env.VERSION_MINOR }}.${{ github.run_number }} .
+
+      - name: Package helm charts
+        run: cd charts ; helm package --version "${{ env.VERSION_MAJOR }}.${{ env.VERSION_MINOR }}.${{ github.run_number }}" --app-version "${{ env.VERSION_MAJOR }}.${{ env.VERSION_MINOR }}.${{ github.run_number }}" ${{ env.NAME }}
+
+      - name: Push docker image
+        run: docker push ghcr.io/mluvii/${{ env.IMAGE_NAME }}:${{ env.VERSION_MAJOR }}.${{ env.VERSION_MINOR }}.${{ github.run_number }}
+
+      - name: Push helm chart
+        run: helm push charts/${{ env.NAME }}-${{ env.VERSION_MAJOR }}.${{ env.VERSION_MINOR }}.${{ github.run_number }}.tgz oci://ghcr.io/mluvii
