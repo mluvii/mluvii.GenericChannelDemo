@@ -50,7 +50,7 @@ namespace mluvii.GenericChannelDemo.Web.Hubs
             var model = new MessageModel
             {
                 Timestamp = DateTimeOffset.Now,
-                IsIncoming = false,
+                MessageType = MessageType.Sent,
                 Content = message
             };
 

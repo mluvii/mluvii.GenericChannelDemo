@@ -22,7 +22,7 @@ namespace mluvii.GenericChannelDemo.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddSignalR();
+            builder.Services.AddSignalR().AddNewtonsoftJsonProtocol();
             builder.Services.AddSingleton(typeof(IUserIdProvider), typeof(ChatHub.UserIdProvider));
             builder.Services.AddControllersWithViews();
 

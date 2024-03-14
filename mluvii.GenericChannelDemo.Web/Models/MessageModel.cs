@@ -1,4 +1,6 @@
 using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace mluvii.GenericChannelDemo.Web.Models
 {
@@ -6,7 +8,8 @@ namespace mluvii.GenericChannelDemo.Web.Models
     {
         public DateTimeOffset Timestamp { get; set; }
 
-        public bool IsIncoming { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public MessageType MessageType { get; set; }
 
         public string Content { get; set; }
     }

@@ -58,9 +58,23 @@ namespace mluvii.GenericChannelDemo.Web.Areas.api.Controllers
                 case GenericChannelActivityType.ChatMessage:
                     return await chatService.ReceiveMessage(model.ConversationId, new MessageModel
                     {
-                        IsIncoming = true,
+                        MessageType = MessageType.Received,
                         Timestamp = DateTimeOffset.Now,
                         Content = model.Text
+                    });
+                case GenericChannelActivityType.OperatorJoined:
+                    return await chatService.ReceiveMessage(model.ConversationId, new MessageModel
+                    {
+                        MessageType = MessageType.System,
+                        Timestamp = DateTimeOffset.Now,
+                        Content = $@"<img src=""{model.OperatorPfp}""></img>{model.OperatorUserFullName} has joined"
+                    });
+                case GenericChannelActivityType.OperatorLeft:
+                    return await chatService.ReceiveMessage(model.ConversationId, new MessageModel
+                    {
+                        MessageType = MessageType.System,
+                        Timestamp = DateTimeOffset.Now,
+                        Content = $@"<img src=""{model.OperatorPfp}""></img>{model.OperatorUserFullName} has left"
                     });
                 default:
                     return null;

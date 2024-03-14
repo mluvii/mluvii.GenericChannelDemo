@@ -26,6 +26,11 @@
             border-left: 2px solid green;
             padding-left: 10px;
         }
+
+        .system {
+            color: darkgray;
+            padding-left: 10px;
+        }
     </style>
 </head>
 
@@ -60,8 +65,7 @@
                 return Math.sign(a.timestamp - b.timestamp);
             });
             $("#messages").html(allMessages.map(function (m) {
-                const cls = m.isIncoming ? "received" : "sent";
-                return "<div class=" + cls + ">" + m.content + "</div>";
+                return "<div class=" + m.messageType.toLowerCase() + ">" + m.content + "</div>";
             }).join(''));
         });
 
