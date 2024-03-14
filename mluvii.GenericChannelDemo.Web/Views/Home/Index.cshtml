@@ -49,7 +49,7 @@
             return newId;
         }
 
-        const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub?conversationId=" + obtainConversationId()).build();
+        const connection = new signalR.HubConnectionBuilder().withUrl(location.pathname.replace(/\/$/, "") + "/chatHub?conversationId=" + obtainConversationId()).build();
 
         const allMessages = [];
         connection.on("AddMessages", function (messageModels) {
