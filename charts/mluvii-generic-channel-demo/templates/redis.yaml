@@ -31,13 +31,28 @@ spec:
               name: config
       volumes:
         - name: data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: mluvii-generic-channel-demo-redis-data
         - name: config
           configMap:
             name: mluvii-generic-channel-demo-redis-config
             items:
               - key: redis.conf
                 path: redis.conf
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mluvii-generic-channel-demo-redis-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName: do-block-storage
 
 ---
 
@@ -93,7 +108,7 @@ data:
     lazyfree-lazy-expire no
     lazyfree-lazy-server-del no
     slave-lazy-flush no
-    appendonly no
+    appendonly yes
     appendfilename "appendonly.aof"
     appendfsync everysec
     no-appendfsync-on-rewrite no
