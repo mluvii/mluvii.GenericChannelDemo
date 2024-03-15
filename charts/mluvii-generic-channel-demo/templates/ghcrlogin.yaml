@@ -1,20 +1,17 @@
 {{- define "dockerConfig" }}
   auths:
-    "ghcr.io":
-      username: "{{ required "ghcrlogin.username is required" .Values.ghcrlogin.username }}"
-      password: "{{ required "ghcrlogin.password is required" .Values.ghcrlogin.password }}"
-      auth: {{ (printf "%s:%s" .Values.ghcrlogin.username .Values.ghcrlogin.password) | b64enc | quote }}
+    {{ required "dockerlogin.server is required" .Values.dockerlogin.server | quote }}:
+      username: "{{ required "dockerlogin.username is required" .Values.dockerlogin.username }}"
+      password: "{{ required "dockerlogin.password is required" .Values.dockerlogin.password }}"
+      auth: {{ (printf "%s:%s" .Values.dockerlogin.username .Values.dockerlogin.password) | b64enc | quote }}
 {{- end }}
-{{- if .Values.ghcrlogin }}
+{{- if .Values.dockerlogin.username }}
 {{- $dockerConfig := include "dockerConfig" . | fromYaml }}
 apiVersion: v1
 data:
   .dockerconfigjson: {{ $dockerConfig | toPrettyJson | b64enc | quote }}
 kind: Secret
 metadata:
-  name: {{ .Values.imagePullSecret }}
-  annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-2"
+  name: {{ required "dockerlogin.secretName is required" .Values.dockerlogin.secretName }}
 type: kubernetes.io/dockerconfigjson
 {{- end }}

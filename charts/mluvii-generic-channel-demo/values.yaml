@@ -1,5 +1,8 @@
 timezone: Europe/Prague
-imagePullSecret: ghcrlogin
 
 apiUserName: mluvii
 #apiPassword: ...
+
+dockerlogin:
+  secretName: ghcrlogin
+  server: ghcr.io

@@ -31,8 +31,6 @@ jobs:
           helm -n ${{ vars.NAMESPACE }} $HELMCMD \
           --set domain="demo.mluvii.com" \
           --set apiPassword="${{ secrets.API_PASSWORD }}" \
-          --set ghcrlogin.username="${{ secrets.GHCR_USERNAME }}" \
-          --set ghcrlogin.password="${{ secrets.GHCR_PASSWORD }}" \
           ${{ env.NAME }} "oci://ghcr.io/mluvii/${{ env.NAME }}"
         env:
           KUBECONFIG: /tmp/config
