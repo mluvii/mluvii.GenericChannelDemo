@@ -1,0 +1,41 @@
+name: Deploy
+
+# https://some-natalie.dev/blog/kubernoodles-pt-4/
+
+on:
+  workflow_dispatch:
+
+env:
+  NAME: mluvii-generic-channel-demo
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: demo
+
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: mluvii
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Write out the kubeconfig info
+        run: echo ${{ secrets.KUBECONFIG }} | base64 -d > /tmp/config
+
+      - name: Install or upgrade
+        run: |
+          HELMCMD=`helm -n ${{ vars.NAMESPACE }} status ${{ env.NAME }} >/dev/null 2>&1 && echo upgrade || echo install`
+          echo Executing $HELMCMD
+          helm -n ${{ vars.NAMESPACE }} $HELMCMD \
+          --set domain="demo.mluvii.com" \
+          --set apiPassword="${{ secrets.API_PASSWORD }}" \
+          --set ghcrlogin.username="${{ secrets.GHCR_USERNAME }}" \
+          --set ghcrlogin.password="${{ secrets.GHCR_PASSWORD }}" \
+          ${{ env.NAME }} "oci://ghcr.io/mluvii/${{ env.NAME }}"
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
