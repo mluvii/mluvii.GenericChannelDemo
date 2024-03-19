@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using idunno.Authentication.Basic;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -42,6 +44,15 @@ namespace mluvii.GenericChannelDemo.Web
             builder.Services.AddSingleton<IChatReceivedMessageNotifier, ChatHub.ReceivedMessageNotifier>();
 
             builder.Services.Configure<GenericChannelOptions>(builder.Configuration.GetSection("GenericChannel"));
+
+            builder.Services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.All;
+                options.RequireHeaderSymmetry = false;
+                options.KnownNetworks.Add(new IPNetwork(IPAddress.Any, 0));
+                options.KnownNetworks.Add(new IPNetwork(IPAddress.IPv6Any, 0));
+                options.ForwardLimit = 1;
+            });
 
             builder.Services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
                 .AddBasic(options =>
@@ -128,17 +139,26 @@ namespace mluvii.GenericChannelDemo.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseForwardedHeaders();
+
             app.UseSwagger(c =>
             {
                 c.SerializeAsV2 = true;
                 c.RouteTemplate = "{documentName}/swagger.json";
+                c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+                {
+                    if (httpReq.Headers.TryGetValue("X-Forwarded-Prefix", out var value) && value.Count > 0)
+                    {
+                        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = value } };
+                    }
+                });
             });
 
             app.UseSwaggerUI(c =>
             {
                 c.RoutePrefix = "api";
                 c.DocumentTitle = "GenericChannelDemo API";
-                c.SwaggerEndpoint("/api/swagger.json", "GenericChannelDemo API");
+                c.SwaggerEndpoint("swagger.json", "GenericChannelDemo API");
             });
 
             app.MapControllerRoute(
