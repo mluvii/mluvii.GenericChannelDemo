@@ -98,6 +98,7 @@ namespace mluvii.GenericChannelDemo.Web
                 .Configure(options =>
                 {
                     options.DocInclusionPredicate((docName, apiDesc) => true);
+                    options.IncludeXmlComments(System.IO.Path.Combine(System.AppContext.BaseDirectory, "mluvii.GenericChannelModels.xml"));
 #pragma warning disable 618
                     options.DescribeAllEnumsAsStrings();
 #pragma warning restore 618
