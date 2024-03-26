@@ -9,6 +9,8 @@ using mluvii.GenericChannelDemo.Web.Models;
 using mluvii.GenericChannelModels.Activity;
 using mluvii.GenericChannelModels.Webhook;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
 
 namespace mluvii.GenericChannelDemo.Web.Services.Impl
@@ -80,9 +82,9 @@ namespace mluvii.GenericChannelDemo.Web.Services.Impl
                 httpClient.DefaultRequestHeaders.TryAddWithoutValidation(webhookHeader.Key, webhookHeader.Value);
             }
 
-            var payloadString = JsonConvert.SerializeObject(new GenericChannelWebhookPayload
+            var payload = new GenericChannelWebhookPayload
             {
-                Activities = new []
+                Activities = new[]
                 {
                     new GenericChannelIncomingActivity
                     {
@@ -92,6 +94,16 @@ namespace mluvii.GenericChannelDemo.Web.Services.Impl
                         Type = GenericChannelActivityType.ChatMessage,
                         Text = model.Content
                     }
+                }
+            };
+
+            var payloadString = JsonConvert.SerializeObject(payload, Formatting.None, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter()
                 }
             });
 
