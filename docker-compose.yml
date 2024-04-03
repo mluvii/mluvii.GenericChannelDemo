@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  demo:
+    image: mluvii.genericchanneldemo.web
+    build:
+      context: .
+      dockerfile: mluvii.GenericChannelDemo.Web/Dockerfile
+    ports:
+      - "8123:80"
+    environment:
+      TZ: "Europe/Prague"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    extra_hosts:
+      host.docker.internal: host-gateway
+      local.mluvii.com: host-gateway
