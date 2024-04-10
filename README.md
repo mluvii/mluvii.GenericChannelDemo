@@ -8,9 +8,11 @@
 docker run -d -p 6379:6379 --name redis redis
 ```
 
-### Run the solution in Rider
+### Run the application
 
-Use run configuration `mluvii.GenericChannelDemo.Web/Dockerfile`
+You can use:
+* Rider: Use run configuration `mluvii.GenericChannelDemo.Web/Dockerfile`
+* docker compose: `docker compose up -d`
 
 ### Set up generic channel in mluvii
 
@@ -18,7 +20,7 @@ Generate a random subscription_uuid.
 
 Insert the data into the database:
 
-| column                   | value                                             | 
+| column                   | value                                             |
 |--------------------------|---------------------------------------------------|
 | generic_channel_subscription_id | `subscription_uuid` |
 | auth_user_name           | mluvii                                            |
