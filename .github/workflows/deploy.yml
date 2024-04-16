@@ -4,14 +4,21 @@ name: Deploy
 
 on:
   workflow_dispatch:
-
-env:
-  NAME: mluvii-generic-channel-demo
+    inputs:
+      environment:
+        description: 'Environment to install on'
+        type: environment
+        required: true
+        default: 'demo'
+      release-name:
+        description: 'Name of the Helm Release'
+        required: true
+        default: 'mluvii-generic-channel-demo'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: demo
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Login to GitHub Container Registry
@@ -26,12 +33,12 @@ jobs:
 
       - name: Install or upgrade
         run: |
-          HELMCMD=`helm -n ${{ vars.NAMESPACE }} status ${{ env.NAME }} >/dev/null 2>&1 && echo upgrade || echo install`
+          HELMCMD=`helm -n ${{ vars.NAMESPACE }} status ${{ inputs.release-name }} >/dev/null 2>&1 && echo upgrade || echo install`
           echo Executing $HELMCMD
           helm -n ${{ vars.NAMESPACE }} $HELMCMD \
-          --set domain="demo.mluvii.com" \
+          --set domain="${{ vars.DOMAIN }}" \
           --set apiPassword="${{ secrets.API_PASSWORD }}" \
-          ${{ env.NAME }} "oci://ghcr.io/mluvii/${{ env.NAME }}"
+          ${{ inputs.release-name }} "oci://ghcr.io/mluvii/${{ inputs.release-name }}"
         env:
           KUBECONFIG: /tmp/config
 
