@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using idunno.Authentication.Basic;
 using Microsoft.AspNetCore.Authorization;
@@ -36,6 +37,7 @@ namespace mluvii.GenericChannelDemo.Web.Areas.api.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(GenericChannelActivityResponse), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> Activity([FromBody] GenericChannelActivity model)
         {
             if (!ModelState.IsValid)
