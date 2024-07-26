@@ -45,8 +45,27 @@ namespace mluvii.GenericChannelDemo.Web.Services.Impl
 
         public async Task SendMessage(string conversationId, MessageModel model)
         {
-            await SendToWebhook(conversationId, model);
+            await SendToWebhook(new GenericChannelIncomingActivity
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                Timestamp = model.Timestamp,
+                ConversationId = conversationId,
+                Type = GenericChannelActivityType.ChatMessage,
+                Text = model.Content
+            });
+
             await database.ListRightPushAsync(GetKey(conversationId), JsonConvert.SerializeObject(model));
+        }
+
+        public async Task LeaveConversation(string conversationId)
+        {
+            await SendToWebhook(new GenericChannelIncomingActivity
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                Timestamp = DateTimeOffset.Now,
+                ConversationId = conversationId,
+                Type = GenericChannelActivityType.GuestLeft
+            });
         }
 
         public async Task<string> ReceiveMessage(string conversationId, MessageModel model)
@@ -73,7 +92,7 @@ namespace mluvii.GenericChannelDemo.Web.Services.Impl
             return database.StringSetAsync("webhook", JsonConvert.SerializeObject(new WebhookInfo(webhookUrl, webhookHeaders)));
         }
 
-        private async Task SendToWebhook(string conversationId, MessageModel model)
+        private async Task SendToWebhook(GenericChannelIncomingActivity activity)
         {
             var (webhookUrl, webhookHeaders) = JsonConvert.DeserializeObject<WebhookInfo>(await database.StringGetAsync("webhook"));
             using var httpClient = httpClientFactory.CreateClient();
@@ -84,17 +103,7 @@ namespace mluvii.GenericChannelDemo.Web.Services.Impl
 
             var payload = new GenericChannelWebhookPayload
             {
-                Activities = new[]
-                {
-                    new GenericChannelIncomingActivity
-                    {
-                        Id = Guid.NewGuid().ToString("N"),
-                        Timestamp = model.Timestamp,
-                        ConversationId = conversationId,
-                        Type = GenericChannelActivityType.ChatMessage,
-                        Text = model.Content
-                    }
-                }
+                Activities = new[] { activity }
             };
 
             var payloadString = JsonConvert.SerializeObject(payload, Formatting.None, new JsonSerializerSettings

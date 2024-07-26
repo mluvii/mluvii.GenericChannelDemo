@@ -10,6 +10,8 @@ namespace mluvii.GenericChannelDemo.Web.Services
 
         Task SendMessage(string conversationId, MessageModel model);
 
+        Task LeaveConversation(string conversationId);
+
         Task<string> ReceiveMessage(string conversationId, MessageModel model);
 
         Task RegisterWebhook(string webhookUrl, IDictionary<string,string> webhookHeaders);

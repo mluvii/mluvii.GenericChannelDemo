@@ -45,6 +45,12 @@ namespace mluvii.GenericChannelDemo.Web.Hubs
             await base.OnConnectedAsync();
         }
 
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            await chatService.LeaveConversation(Context.UserIdentifier);
+            await base.OnDisconnectedAsync(exception);
+        }
+
         public async Task Send(string message)
         {
             var model = new MessageModel
